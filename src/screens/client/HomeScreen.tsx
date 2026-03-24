@@ -31,9 +31,22 @@ const RESTAURANTS = [
 
 export default function HomeScreen() {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [favorites, setFavorites] = useState<string[]>([]);
   const navigation = useNavigation<any>();
   const { items } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.auth);
+
+  const filteredRestaurants = RESTAURANTS.filter(r => 
+    activeCategory === 'All' || r.tags.includes(activeCategory)
+  );
+
+  const toggleFavorite = (id: string) => {
+    if (favorites.includes(id)) {
+      setFavorites(favorites.filter(favId => favId !== id));
+    } else {
+      setFavorites([...favorites, id]);
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-neutral-50 pt-10">
@@ -147,7 +160,7 @@ export default function HomeScreen() {
             <TouchableOpacity><Text className="text-orange-500 font-bold">See all</Text></TouchableOpacity>
           </View>
 
-          {RESTAURANTS.map((restaurant) => (
+          {filteredRestaurants.length > 0 ? filteredRestaurants.map((restaurant) => (
             <TouchableOpacity 
               key={restaurant.id} 
               className="bg-white rounded-4xl shadow-sm mb-6 overflow-hidden border border-gray-100"
@@ -155,9 +168,21 @@ export default function HomeScreen() {
             >
               <View className="h-48 w-full bg-gray-200">
                 <Image source={{ uri: restaurant.image }} className="w-full h-full" resizeMode="cover" />
-                <View className="absolute top-4 right-4 bg-white/90 px-3 py-1.5 rounded-full flex-row items-center shadow-sm">
-                  <Ionicons name="star" size={14} color="#fbbf24" className="mr-1" />
-                  <Text className="font-bold text-gray-800 text-sm ml-1">{restaurant.rating}</Text>
+                <View className="absolute top-4 right-4 flex-row gap-2">
+                   <TouchableOpacity 
+                     className="bg-white/90 p-2 rounded-full items-center justify-center shadow-sm"
+                     onPress={() => toggleFavorite(restaurant.id)}
+                   >
+                     <Ionicons 
+                       name={favorites.includes(restaurant.id) ? "heart" : "heart-outline"} 
+                       size={20} 
+                       color={favorites.includes(restaurant.id) ? "#ef4444" : "#4b5563"} 
+                     />
+                   </TouchableOpacity>
+                   <View className="bg-white/90 px-3 py-1.5 rounded-full flex-row items-center shadow-sm">
+                     <Ionicons name="star" size={14} color="#fbbf24" className="mr-1" />
+                     <Text className="font-bold text-gray-800 text-sm ml-1">{restaurant.rating}</Text>
+                   </View>
                 </View>
               </View>
               <View className="p-6">
@@ -184,7 +209,12 @@ export default function HomeScreen() {
                 </View>
               </View>
             </TouchableOpacity>
-          ))}
+          )) : (
+            <View className="items-center py-20">
+               <Ionicons name="restaurant-outline" size={60} color="#e5e7eb" />
+               <Text className="text-gray-400 mt-4 font-bold">No restaurants in this category</Text>
+            </View>
+          )}
         </View>
       </ScrollView>
     </SafeAreaView>

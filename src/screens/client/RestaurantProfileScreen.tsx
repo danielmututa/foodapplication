@@ -36,13 +36,22 @@ export default function RestaurantProfileScreen() {
   const [reviews, setReviews] = useState(INITIAL_REVIEWS);
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
-
+  const [isFavorite, setIsFavorite] = useState(false);
+ 
   const handleRestrictedAction = (callback: () => void) => {
     if (!isAuthenticated) {
       navigation.navigate('AuthModal');
     } else {
       callback();
     }
+  };
+ 
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    Alert.alert(
+      isFavorite ? 'Removed from Favorites' : 'Added to Favorites',
+      `${restaurant.name} has been ${isFavorite ? 'removed from' : 'added to'} your saved restaurants.`
+    );
   };
 
   const openMaps = () => {
@@ -112,8 +121,9 @@ export default function RestaurantProfileScreen() {
         <TouchableOpacity 
           className="absolute z-10 w-11 h-11 bg-black/40 rounded-full items-center justify-center border border-white/20"
           style={{ top: insets.top + 10, right: 16 }}
+          onPress={toggleFavorite}
         >
-          <Ionicons name="heart-outline" size={24} color="white" />
+          <Ionicons name={isFavorite ? "heart" : "heart-outline"} size={24} color={isFavorite ? "#ef4444" : "white"} />
         </TouchableOpacity>
       </View>
 

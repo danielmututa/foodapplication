@@ -1,10 +1,12 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Image, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Order {
   id: string;
+  restaurantId: string;
   restaurantName: string;
   date: string;
   total: number;
@@ -16,6 +18,7 @@ interface Order {
 const MOCK_ORDERS: Order[] = [
   {
     id: 'ORD-1234',
+    restaurantId: '1',
     restaurantName: 'Pizza Palace',
     date: '24 Mar 2024, 12:30 PM',
     total: 25.50,
@@ -25,6 +28,7 @@ const MOCK_ORDERS: Order[] = [
   },
   {
     id: 'ORD-5678',
+    restaurantId: '2',
     restaurantName: 'Burger Bistro',
     date: '22 Mar 2024, 07:15 PM',
     total: 18.90,
@@ -36,9 +40,13 @@ const MOCK_ORDERS: Order[] = [
 
 export default function OrdersScreen() {
   const insets = useSafeAreaInsets();
+  const navigation = useNavigation<any>();
 
   const renderItem = ({ item }: { item: Order }) => (
-    <TouchableOpacity className="bg-white mx-4 my-3 p-4 rounded-3xl shadow-sm border border-gray-100">
+    <TouchableOpacity 
+      className="bg-white mx-4 my-3 p-4 rounded-3xl shadow-sm border border-gray-100"
+      onPress={() => navigation.navigate('RestaurantProfile', { restaurantId: item.restaurantId })}
+    >
       <View className="flex-row items-center">
         <Image source={{ uri: item.image }} className="w-16 h-16 rounded-2xl mr-4" />
         <View className="flex-1">
@@ -62,10 +70,16 @@ export default function OrdersScreen() {
         </View>
       </View>
       <View className="flex-row mt-4 pt-4 border-t border-gray-50">
-        <TouchableOpacity className="bg-orange-500 flex-1 py-2.5 rounded-xl items-center mr-2">
+        <TouchableOpacity 
+          className="bg-orange-500 flex-1 py-2.5 rounded-xl items-center mr-2"
+          onPress={() => navigation.navigate('RestaurantProfile', { restaurantId: item.restaurantId })}
+        >
           <Text className="text-white font-bold">Reorder</Text>
         </TouchableOpacity>
-        <TouchableOpacity className="bg-gray-50 flex-1 py-2.5 rounded-xl items-center">
+        <TouchableOpacity 
+          className="bg-gray-50 flex-1 py-2.5 rounded-xl items-center"
+          onPress={() => navigation.navigate('TrackOrder', { orderId: item.id })}
+        >
           <Text className="text-gray-600 font-bold">Track Order</Text>
         </TouchableOpacity>
       </View>

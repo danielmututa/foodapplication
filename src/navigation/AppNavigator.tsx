@@ -9,6 +9,12 @@ import RestaurantNavigator from './RestaurantNavigator';
 import RestaurantProfileScreen from '../screens/client/RestaurantProfileScreen';
 import CartScreen from '../screens/client/CartScreen';
 import BookingScreen from '../screens/client/BookingScreen';
+import FavoritesScreen from '../screens/client/FavoritesScreen';
+import AddressesScreen from '../screens/client/AddressesScreen';
+import PaymentsScreen from '../screens/client/PaymentsScreen';
+import SettingsScreen from '../screens/client/SettingsScreen';
+import SupportScreen from '../screens/client/SupportScreen';
+import TrackOrderScreen from '../screens/client/TrackOrderScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -30,6 +36,12 @@ export default function AppNavigator() {
         <Stack.Screen name="RestaurantProfile" component={RestaurantProfileScreen} />
         <Stack.Screen name="Cart" component={CartScreen} />
         <Stack.Screen name="Booking" component={BookingScreen} />
+        <Stack.Screen name="Favorites" component={FavoritesScreen} />
+        <Stack.Screen name="Addresses" component={AddressesScreen} />
+        <Stack.Screen name="Payments" component={PaymentsScreen} />
+        <Stack.Screen name="Settings" component={SettingsScreen} />
+        <Stack.Screen name="Support" component={SupportScreen} />
+        <Stack.Screen name="TrackOrder" component={TrackOrderScreen} />
         {!isAuthenticated && (
           <Stack.Screen 
             name="AuthModal" 
