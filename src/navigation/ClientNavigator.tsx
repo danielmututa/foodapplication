@@ -4,15 +4,13 @@ import { View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/client/HomeScreen';
 import SearchScreen from '../screens/client/SearchScreen';
+import OrdersScreen from '../screens/client/OrdersScreen';
+import ProfileScreen from '../screens/client/ProfileScreen';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import type { RootState } from '../store';
 
 const Tab = createBottomTabNavigator();
-
-// Temporary mock screens
-const OrdersScreen = () => <View className="flex-1 items-center justify-center bg-white"><Text className="text-xl font-bold">Orders Screen</Text></View>;
-const ProfileScreen = () => <View className="flex-1 items-center justify-center bg-white"><Text className="text-xl font-bold">Profile Screen</Text></View>;
 
 export default function ClientNavigator() {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -32,6 +30,13 @@ export default function ClientNavigator() {
         headerShown: false, 
         tabBarActiveTintColor: '#f97316',
         tabBarInactiveTintColor: '#9ca3af',
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          borderTopWidth: 0,
+          elevation: 0,
+          backgroundColor: '#fff',
+          paddingTop: 10,
+        },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: any = 'home';
           if (route.name === 'Home') iconName = focused ? 'home' : 'home-outline';

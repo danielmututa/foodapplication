@@ -25,8 +25,15 @@ export default function LoginScreen({ navigation }: any) {
 
   const onSubmit = (data: LoginForm) => {
     // In a real app, authenticate with backend
-    // Mocking login as client for demo
-    dispatch(login({ role: 'client' }));
+    dispatch(login({ 
+      role: 'client',
+      user: {
+        id: '1',
+        name: data.email.split('@')[0],
+        email: data.email,
+        avatar: `https://i.pravatar.cc/150?u=${data.email}`
+      }
+    }));
   };
 
   return (

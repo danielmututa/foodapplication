@@ -7,6 +7,8 @@ import AuthNavigator from './AuthNavigator';
 import ClientNavigator from './ClientNavigator';
 import RestaurantNavigator from './RestaurantNavigator';
 import RestaurantProfileScreen from '../screens/client/RestaurantProfileScreen';
+import CartScreen from '../screens/client/CartScreen';
+import BookingScreen from '../screens/client/BookingScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -26,6 +28,8 @@ export default function AppNavigator() {
       <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="ClientRoot" component={ClientNavigator} />
         <Stack.Screen name="RestaurantProfile" component={RestaurantProfileScreen} />
+        <Stack.Screen name="Cart" component={CartScreen} />
+        <Stack.Screen name="Booking" component={BookingScreen} />
         {!isAuthenticated && (
           <Stack.Screen 
             name="AuthModal" 

@@ -32,7 +32,15 @@ export default function RegisterScreen({ navigation }: any) {
 
   const onSubmit = (data: RegisterForm) => {
     // In a real app, register with backend
-    dispatch(login({ role: 'client' }));
+    dispatch(login({ 
+      role: 'client',
+      user: {
+        id: Date.now().toString(),
+        name: data.name,
+        email: data.email,
+        avatar: `https://i.pravatar.cc/150?u=${data.email}`
+      }
+    }));
   };
 
   return (

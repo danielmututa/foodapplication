@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const ALL_RESTAURANTS = [
   { id: '1', name: 'Pizza Palace', rating: 4.8, distance: '1.2 km', cuisine: 'Pizza', price: '$$' },
@@ -11,6 +12,7 @@ const ALL_RESTAURANTS = [
 ];
 
 export default function SearchScreen() {
+  const insets = useSafeAreaInsets();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const navigation = useNavigation<any>();
@@ -22,7 +24,7 @@ export default function SearchScreen() {
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 pt-10">
+    <View style={{ flex: 1, backgroundColor: '#f9fafb', paddingTop: insets.top }}>
       <View className="px-4 pb-4">
         <Text className="text-2xl font-bold text-gray-900 mb-4">Search</Text>
 
@@ -56,7 +58,11 @@ export default function SearchScreen() {
         </ScrollView>
       </View>
 
-      <ScrollView className="flex-1 px-4">
+      <ScrollView 
+        className="flex-1 px-4" 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 120 }}
+      >
         <Text className="text-sm font-semibold text-gray-500 mb-4 uppercase">{filteredRestaurants.length} Results</Text>
         
         {filteredRestaurants.map((restaurant) => (
@@ -81,6 +87,6 @@ export default function SearchScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
