@@ -1,8 +1,9 @@
-import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, ScrollView, TouchableOpacity, Image, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { notificationService } from '../../services/NotificationService';
 
 const STEPS = [
   { id: 1, label: 'Order Placed', time: '12:30 PM', completed: true, active: false },
@@ -11,11 +12,17 @@ const STEPS = [
   { id: 4, label: 'Delivered', time: 'Estimated 1:05 PM', completed: false, active: false },
 ];
 
+
 export default function TrackOrderScreen() {
   const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute<any>();
   const orderId = route.params?.orderId || 'ORD-1234';
+
+  useEffect(() => {
+    // Simulate an order status update notification when entering the screen
+    notificationService.notifyOrderStatus(orderId, 'On the Way');
+  }, []);
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white', paddingTop: insets.top }}>
@@ -72,7 +79,10 @@ export default function TrackOrderScreen() {
                                     <Text className="text-gray-800 text-xs font-bold">John (Your Courier)</Text>
                                     <Text className="text-gray-500 text-[10px]">On a bicycle</Text>
                                 </View>
-                                <TouchableOpacity className="ml-auto bg-white p-2 rounded-xl shadow-sm border border-gray-100">
+                                <TouchableOpacity 
+                                  onPress={() => Linking.openURL('tel:+263775306263')}
+                                  className="ml-auto bg-white p-2 rounded-xl shadow-sm border border-gray-100"
+                                >
                                     <Ionicons name="call" size={16} color="#f97316" />
                                 </TouchableOpacity>
                             </View>
@@ -82,7 +92,10 @@ export default function TrackOrderScreen() {
             ))}
         </View>
 
-        <TouchableOpacity className="bg-orange-500 py-5 rounded-2xl items-center mt-10 mb-20 shadow-lg shadow-orange-200">
+        <TouchableOpacity 
+          onPress={() => Linking.openURL('https://wa.me/263783012260')}
+          className="bg-orange-500 py-5 rounded-2xl items-center mt-10 mb-20 shadow-lg shadow-orange-200"
+        >
             <Text className="text-white text-lg font-bold">Need Help?</Text>
         </TouchableOpacity>
       </ScrollView>

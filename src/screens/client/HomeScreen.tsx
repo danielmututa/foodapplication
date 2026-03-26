@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, SafeAreaView, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSelector } from 'react-redux';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { RootState } from '../../store';
 
 const { width } = Dimensions.get('window');
 
 const CATEGORIES = [
-  { name: 'All', icon: 'fast-food-outline' },
-  { name: 'Pizza', icon: 'pizza-outline' },
-  { name: 'Burger', icon: 'hamburger-outline' },
-  { name: 'Sushi', icon: 'water-outline' },
-  { name: 'Dessert', icon: 'ice-cream-outline' },
-  { name: 'Healthy', icon: 'leaf-outline' },
-  { name: 'Vegan', icon: 'nutrition-outline' }
+  { name: 'All', icon: 'grid-outline', provider: Ionicons },
+  { name: 'Pizza', icon: 'pizza-outline', provider: Ionicons },
+  { name: 'Burger', icon: 'fast-food', provider: Ionicons },
+  { name: 'Sushi', icon: 'water-outline', provider: Ionicons },
+  { name: 'Dessert', icon: 'ice-cream-outline', provider: Ionicons },
+  { name: 'Healthy', icon: 'leaf-outline', provider: Ionicons },
+  { name: 'Vegan', icon: 'nutrition-outline', provider: Ionicons }
 ];
 
 const NEW_PRODUCTS = [
@@ -30,6 +31,7 @@ const RESTAURANTS = [
 ];
 
 export default function HomeScreen() {
+  const insets = useSafeAreaInsets();
   const [activeCategory, setActiveCategory] = useState('All');
   const [favorites, setFavorites] = useState<string[]>([]);
   const navigation = useNavigation<any>();
@@ -49,22 +51,22 @@ export default function HomeScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-neutral-50 pt-10">
-      <View className="px-5 pt-4 pb-2">
+    <View style={{ flex: 1, backgroundColor: '#f9fafb', paddingTop: Math.max(insets.top, 10) }}>
+      <View className="px-5 pt-2 pb-2">
         <View className="flex-row justify-between items-center mb-6">
           <View>
-            <Text className="text-gray-500 text-xs font-medium uppercase tracking-wider">Location</Text>
-            <View className="flex-row items-center">
-               <Text className="text-xl font-bold text-gray-900 mr-1">New York, NY</Text>
-               <Ionicons name="location" size={18} color="#f97316" />
-            </View>
+            <Text className="text-gray-400 text-[10px] font-bold uppercase tracking-[2px] mb-1">Pick up at</Text>
+            <TouchableOpacity className="flex-row items-center">
+               <Text className="text-lg font-extrabold text-gray-900 mr-1">New York, NY</Text>
+               <Feather name="chevron-down" size={14} color="#f97316" />
+            </TouchableOpacity>
           </View>
           <View className="flex-row items-center">
             <TouchableOpacity 
-              className="mr-3 bg-white p-2.5 rounded-full shadow-sm border border-gray-100 relative"
+              className="mr-3 bg-white p-2.5 rounded-2xl shadow-sm border border-gray-100 relative"
               onPress={() => navigation.navigate('Cart')}
             >
-              <Ionicons name="cart-outline" size={24} color="#1f2937" />
+              <Feather name="shopping-bag" size={20} color="#1f2937" />
               {items.length > 0 && (
                 <View className="absolute -top-1 -right-1 bg-orange-500 w-5 h-5 rounded-full items-center justify-center border-2 border-white">
                   <Text className="text-white text-[10px] font-bold">{items.length}</Text>
@@ -72,7 +74,7 @@ export default function HomeScreen() {
               )}
             </TouchableOpacity>
             <TouchableOpacity 
-              className="w-12 h-12 bg-gray-200 rounded-full items-center justify-center overflow-hidden shadow-sm border-2 border-white"
+              className="w-11 h-11 bg-gray-200 rounded-2xl items-center justify-center overflow-hidden shadow-sm border-2 border-white"
               onPress={() => navigation.navigate('Profile')}
             >
                <Image source={{uri: user?.avatar || 'https://i.pravatar.cc/100'}} className="w-full h-full" />
@@ -85,65 +87,70 @@ export default function HomeScreen() {
           className="flex-row items-center bg-white border border-gray-100 p-4 rounded-2xl shadow-sm mb-6"
           onPress={() => navigation.navigate('Search')}
         >
-          <Ionicons name="search-outline" size={20} color="#9ca3af" className="mr-3" />
-          <Text className="flex-1 text-base text-gray-400 ml-2">Search for food or restaurants...</Text>
-          <View className="bg-orange-500 p-2 rounded-xl">
-             <Ionicons name="options-outline" size={20} color="white" />
+          <Feather name="search" size={18} color="#9ca3af" />
+          <Text className="flex-1 text-sm text-gray-400 ml-3">Search for food or restaurants...</Text>
+          <View className="bg-orange-500 p-1.5 rounded-lg">
+             <Feather name="sliders" size={16} color="white" />
           </View>
         </TouchableOpacity>
       </View>
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Categories */}
-        <View className="mb-8 mt-4">
-          <Text className="text-lg font-bold text-gray-900 px-5 mb-4">Categories</Text>
+        <View className="mb-8 mt-2">
+          <View className="flex-row justify-between items-center px-5 mb-4">
+            <Text className="text-lg font-black text-gray-900">Categories</Text>
+            <TouchableOpacity><Text className="text-orange-500 font-bold text-xs">See all</Text></TouchableOpacity>
+          </View>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-5">
-            {CATEGORIES.map((cat, index) => (
+            {CATEGORIES.map((cat, index) => {
+              const IconProvider = cat.provider as any;
+              return (
               <TouchableOpacity
                 key={index}
                 onPress={() => setActiveCategory(cat.name)}
-                className={`mr-4 items-center`}
+                className={`mr-5 items-center`}
               >
-                <View className={`w-16 h-16 rounded-2xl items-center justify-center mb-2 shadow-sm border ${
+                <View className={`w-14 h-14 rounded-2xl items-center justify-center mb-2 shadow-sm border ${
                   activeCategory === cat.name ? 'bg-orange-500 border-orange-600' : 'bg-white border-gray-100'
                 }`}>
-                   <Ionicons 
+                   <IconProvider 
                     name={cat.icon as any} 
-                    size={28} 
+                    size={24} 
                     color={activeCategory === cat.name ? 'white' : '#4b5563'} 
                   />
                 </View>
-                <Text className={`text-xs font-bold ${activeCategory === cat.name ? 'text-orange-600' : 'text-gray-500'}`}>
+                <Text className={`text-[10px] font-extrabold ${activeCategory === cat.name ? 'text-orange-600' : 'text-gray-400'} uppercase tracking-wider`}>
                   {cat.name}
                 </Text>
               </TouchableOpacity>
-            ))}
+            )})}
             <View className="w-10" />
           </ScrollView>
         </View>
 
         {/* New Products Carousel */}
         <View className="mb-8">
-          <Text className="text-lg font-bold text-gray-900 px-5 mb-4">New Arrivals 🔥</Text>
+          <Text className="text-lg font-black text-gray-900 px-5 mb-4">New Arrivals 🔥</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="px-5">
             {NEW_PRODUCTS.map((product) => (
               <TouchableOpacity
                 key={product.id}
-                className="bg-white mr-4 p-3 rounded-3xl shadow-sm border border-gray-100 w-64"
+                className="bg-white mr-4 p-3 rounded-[32px] shadow-sm border border-gray-100 w-60"
               >
                 <View className="relative">
-                   <Image source={{ uri: product.image }} className="w-full h-32 rounded-2xl" resizeMode="cover" />
-                   <View className="absolute top-2 right-2 bg-black/60 px-2 py-1 rounded-full">
-                      <Text className="text-white text-[10px] font-bold">{product.time}</Text>
+                   <Image source={{ uri: product.image }} className="w-full h-32 rounded-[24px]" resizeMode="cover" />
+                   <View className="absolute top-2 right-2 bg-black/60 px-2.5 py-1 rounded-full">
+                      <Text className="text-white text-[9px] font-bold">{product.time}</Text>
                    </View>
                 </View>
-                <View className="mt-3">
-                   <Text className="font-bold text-gray-900 text-base">{product.name}</Text>
-                   <Text className="text-gray-500 text-xs mb-2">{product.restaurant}</Text>
+                <View className="mt-3 px-1">
+                   <Text className="font-extrabold text-gray-900 text-sm">{product.name}</Text>
+                   <Text className="text-gray-400 text-[10px] mb-2 font-medium">{product.restaurant}</Text>
                    <View className="flex-row justify-between items-center">
-                      <Text className="text-orange-500 font-extrabold text-lg">${product.price.toFixed(2)}</Text>
-                      <TouchableOpacity className="bg-orange-500 p-2 rounded-full">
-                         <Ionicons name="add" size={20} color="white" />
+                      <Text className="text-gray-900 font-black text-base">${product.price.toFixed(2)}</Text>
+                      <TouchableOpacity className="bg-orange-500 p-2 rounded-xl">
+                         <Feather name="plus" size={16} color="white" />
                       </TouchableOpacity>
                    </View>
                 </View>
@@ -156,54 +163,54 @@ export default function HomeScreen() {
         {/* Popular Restaurants */}
         <View className="px-5 pb-32">
           <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-xl font-bold text-gray-900">Popular Near You</Text>
-            <TouchableOpacity><Text className="text-orange-500 font-bold">See all</Text></TouchableOpacity>
+            <Text className="text-lg font-black text-gray-900">Popular Near You</Text>
+            <TouchableOpacity><Text className="text-orange-500 font-bold text-xs">View map</Text></TouchableOpacity>
           </View>
 
           {filteredRestaurants.length > 0 ? filteredRestaurants.map((restaurant) => (
             <TouchableOpacity 
               key={restaurant.id} 
-              className="bg-white rounded-4xl shadow-sm mb-6 overflow-hidden border border-gray-100"
+              className="bg-white rounded-[32px] shadow-sm mb-6 overflow-hidden border border-gray-50"
               onPress={() => navigation.navigate('RestaurantProfile', { restaurantId: restaurant.id })}
             >
-              <View className="h-48 w-full bg-gray-200">
+              <View className="h-44 w-full bg-gray-200">
                 <Image source={{ uri: restaurant.image }} className="w-full h-full" resizeMode="cover" />
                 <View className="absolute top-4 right-4 flex-row gap-2">
                    <TouchableOpacity 
-                     className="bg-white/90 p-2 rounded-full items-center justify-center shadow-sm"
+                     className="bg-white/90 p-2 rounded-2xl items-center justify-center shadow-sm"
                      onPress={() => toggleFavorite(restaurant.id)}
                    >
                      <Ionicons 
                        name={favorites.includes(restaurant.id) ? "heart" : "heart-outline"} 
-                       size={20} 
-                       color={favorites.includes(restaurant.id) ? "#ef4444" : "#4b5563"} 
+                       size={18} 
+                       color={favorites.includes(restaurant.id) ? "#ef4444" : "#1f2937"} 
                      />
                    </TouchableOpacity>
-                   <View className="bg-white/90 px-3 py-1.5 rounded-full flex-row items-center shadow-sm">
-                     <Ionicons name="star" size={14} color="#fbbf24" className="mr-1" />
-                     <Text className="font-bold text-gray-800 text-sm ml-1">{restaurant.rating}</Text>
+                   <View className="bg-white/90 px-3 py-1.5 rounded-2xl flex-row items-center shadow-sm">
+                     <Ionicons name="star" size={12} color="#f59e0b" />
+                     <Text className="font-black text-gray-900 text-xs ml-1">{restaurant.rating}</Text>
                    </View>
                 </View>
               </View>
-              <View className="p-6">
-                <View className="flex-row justify-between items-center mb-2">
-                  <Text className="text-2xl font-black text-gray-900">{restaurant.name}</Text>
+              <View className="p-5">
+                <View className="flex-row justify-between items-center mb-1">
+                  <Text className="text-xl font-black text-gray-900">{restaurant.name}</Text>
                 </View>
                 <View className="flex-row items-center mb-4">
-                   <Text className="text-gray-500 text-sm font-medium">{restaurant.tags.join(' • ')}</Text>
+                   <Text className="text-gray-400 text-xs font-bold uppercase tracking-wider">{restaurant.tags.join(' • ')}</Text>
                 </View>
-                <View className="flex-row items-center border-t border-gray-50 pt-5">
-                  <View className="flex-row items-center mr-6">
-                    <Ionicons name="navigate-outline" size={16} color="#9ca3af" className="mr-1" />
-                    <Text className="text-gray-600 font-bold text-xs ml-1">{restaurant.distance}</Text>
+                <View className="flex-row items-center border-t border-gray-50 pt-4">
+                  <View className="flex-row items-center mr-5">
+                    <Feather name="map-pin" size={12} color="#f97316" />
+                    <Text className="text-gray-900 font-extrabold text-[10px] ml-1.5">{restaurant.distance}</Text>
                   </View>
                   <View className="flex-row items-center">
-                    <Ionicons name="time-outline" size={16} color="#9ca3af" className="mr-1" />
-                    <Text className="text-gray-600 font-bold text-xs ml-1">{restaurant.time}</Text>
+                    <Feather name="clock" size={12} color="#f97316" />
+                    <Text className="text-gray-900 font-extrabold text-[10px] ml-1.5">{restaurant.time}</Text>
                   </View>
                   <View className="flex-1 items-end">
-                    <View className="bg-green-50 px-3 py-1.5 rounded-xl">
-                      <Text className="text-green-600 font-extrabold text-[10px] uppercase">Free delivery</Text>
+                    <View className="bg-orange-50 px-2.5 py-1 rounded-lg">
+                      <Text className="text-orange-600 font-black text-[9px] uppercase">Free Delivery</Text>
                     </View>
                   </View>
                 </View>
@@ -211,12 +218,12 @@ export default function HomeScreen() {
             </TouchableOpacity>
           )) : (
             <View className="items-center py-20">
-               <Ionicons name="restaurant-outline" size={60} color="#e5e7eb" />
+               <Feather name="info" size={40} color="#e5e7eb" />
                <Text className="text-gray-400 mt-4 font-bold">No restaurants in this category</Text>
             </View>
           )}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }

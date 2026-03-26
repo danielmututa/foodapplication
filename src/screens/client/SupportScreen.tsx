@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, TextInput, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
@@ -28,7 +28,10 @@ export default function SupportScreen() {
             <Ionicons name="chatbubbles" size={40} color="white" />
             <Text className="text-white text-xl font-bold mt-4">How can we help?</Text>
             <Text className="text-orange-100 text-center mt-2">Our team is available 24/7 to assist you with any issues.</Text>
-            <TouchableOpacity className="bg-white px-8 py-3 rounded-2xl mt-6 shadow-sm">
+            <TouchableOpacity 
+              onPress={() => Linking.openURL('https://wa.me/263783012260')}
+              className="bg-white px-8 py-3 rounded-2xl mt-6 shadow-sm"
+            >
                 <Text className="text-orange-600 font-bold">Chat with us</Text>
             </TouchableOpacity>
         </View>

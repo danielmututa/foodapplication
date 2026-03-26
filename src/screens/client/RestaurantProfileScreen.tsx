@@ -5,6 +5,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { addToCart } from '../../store/cartSlice';
+import { notificationService } from '../../services/NotificationService';
 import type { RootState } from '../../store';
 
 const RESTAURANT_DATA: any = {
@@ -73,6 +74,9 @@ export default function RestaurantProfileScreen() {
        restaurantId: restaurantId,
        restaurantName: restaurant.name
      }));
+     
+     // Trigger notification
+     notificationService.notifyAddToCart(item.name);
      Alert.alert('Success', `${item.name} added to cart!`);
   };
 

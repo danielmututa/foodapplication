@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 
@@ -14,43 +14,44 @@ export default function PaymentsScreen() {
   const navigation = useNavigation<any>();
 
   return (
-    <View style={{ flex: 1, backgroundColor: '#f9fafb', paddingTop: insets.top }}>
-      <View className="px-6 py-4 flex-row items-center border-b border-gray-100 bg-white">
-        <TouchableOpacity onPress={() => navigation.goBack()} className="mr-4">
-          <Ionicons name="arrow-back" size={24} color="#1f2937" />
+    <View style={{ flex: 1, backgroundColor: 'white', paddingTop: Math.max(insets.top, 10) }}>
+      <View className="px-6 py-2 flex-row items-center justify-between border-b border-gray-50">
+        <TouchableOpacity onPress={() => navigation.goBack()} className="w-11 h-11 bg-gray-50 rounded-2xl items-center justify-center">
+          <Feather name="chevron-left" size={24} color="#1f2937" />
         </TouchableOpacity>
-        <Text className="text-2xl font-bold text-gray-900">Payment Methods</Text>
+        <Text className="text-xl font-black text-gray-900">Payments</Text>
+        <View className="w-11" />
       </View>
 
-      <ScrollView className="flex-1 px-6 pt-6">
-        <Text className="text-gray-400 font-bold uppercase text-xs mb-4 ml-2 tracking-widest">Your Saved Cards</Text>
+      <ScrollView className="flex-1 px-6 pt-8">
+        <Text className="text-gray-400 font-bold uppercase text-[10px] mb-4 tracking-widest px-1">Your Saved Cards</Text>
         
         {MOCK_CARDS.map(card => (
-          <TouchableOpacity key={card.id} className="bg-white p-5 rounded-3xl mb-4 border border-gray-100 flex-row items-center shadow-sm">
-            <View className="w-14 h-10 bg-gray-900 rounded-lg items-center justify-center mr-4">
-              <Text className="text-white font-black italic">{card.type === 'Visa' ? 'VISA' : 'MC'}</Text>
+          <TouchableOpacity key={card.id} className="bg-gray-50 p-5 rounded-[32px] mb-4 border border-gray-100 flex-row items-center shadow-sm">
+            <View className="w-14 h-10 bg-gray-900 rounded-xl items-center justify-center mr-4">
+              <Text className="text-white font-black italic text-[10px]">{card.type === 'Visa' ? 'VISA' : 'MC'}</Text>
             </View>
             <View className="flex-1">
-              <Text className="text-lg font-bold text-gray-900">•••• •••• •••• {card.last4}</Text>
-              <Text className="text-gray-500 text-xs mt-1">Expires {card.expiry}</Text>
+              <Text className="text-base font-black text-gray-900">•••• {card.last4}</Text>
+              <Text className="text-gray-400 font-bold text-[10px] uppercase tracking-wider mt-0.5">Expires {card.expiry}</Text>
             </View>
-            <View className="w-6 h-6 bg-green-100 rounded-full items-center justify-center">
-              <Ionicons name="checkmark" size={14} color="#16a34a" />
+            <View className="w-6 h-6 bg-green-50 rounded-full items-center justify-center">
+              <Feather name="check" size={14} color="#16a34a" />
             </View>
           </TouchableOpacity>
         ))}
 
-        <TouchableOpacity className="bg-white p-5 rounded-3xl mb-8 border border-gray-100 flex-row items-center shadow-sm">
-          <View className="w-12 h-12 bg-blue-50 rounded-2xl items-center justify-center mr-4">
-            <Ionicons name="logo-paypal" size={24} color="#003087" />
+        <TouchableOpacity className="bg-gray-50 p-5 rounded-[32px] mb-8 border border-gray-100 flex-row items-center">
+          <View className="w-14 h-10 bg-blue-50 rounded-xl items-center justify-center mr-4">
+             <Feather name="at-sign" size={20} color="#003087" />
           </View>
-          <Text className="flex-1 text-lg font-bold text-gray-900">PayPal</Text>
-          <Text className="text-gray-400 text-sm">j***@example.com</Text>
+          <Text className="flex-1 text-base font-black text-gray-900">PayPal</Text>
+          <Text className="text-gray-400 font-bold text-[10px]">j***@example.com</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity className="border-2 border-dashed border-gray-200 p-5 rounded-3xl items-center justify-center flex-row">
-          <Ionicons name="add-circle" size={24} color="#f97316" className="mr-2" />
-          <Text className="text-orange-600 font-bold ml-2">Add Payment Method</Text>
+        <TouchableOpacity className="border-2 border-dashed border-gray-100 p-6 rounded-[32px] items-center justify-center flex-row">
+          <Feather name="plus-circle" size={20} color="#f97316" />
+          <Text className="text-orange-500 font-black ml-3 uppercase text-xs tracking-widest">Add Payment Method</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>

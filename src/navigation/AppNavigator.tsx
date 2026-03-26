@@ -16,6 +16,9 @@ import SettingsScreen from '../screens/client/SettingsScreen';
 import SupportScreen from '../screens/client/SupportScreen';
 import TrackOrderScreen from '../screens/client/TrackOrderScreen';
 
+import ChangePasswordScreen from '../screens/client/ChangePasswordScreen';
+import TwoFactorAuthScreen from '../screens/client/TwoFactorAuthScreen';
+
 const Stack = createNativeStackNavigator();
 
 export default function AppNavigator() {
@@ -42,6 +45,8 @@ export default function AppNavigator() {
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Support" component={SupportScreen} />
         <Stack.Screen name="TrackOrder" component={TrackOrderScreen} />
+        <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
+        <Stack.Screen name="TwoFactorAuth" component={TwoFactorAuthScreen} />
         {!isAuthenticated && (
           <Stack.Screen 
             name="AuthModal" 

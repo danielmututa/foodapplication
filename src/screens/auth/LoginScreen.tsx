@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
+import { notificationService } from '../../services/NotificationService';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -23,7 +24,7 @@ export default function LoginScreen({ navigation }: any) {
     }
   });
 
-  const onSubmit = (data: LoginForm) => {
+  const onSubmit = async (data: LoginForm) => {
     // In a real app, authenticate with backend
     dispatch(login({ 
       role: 'client',
@@ -34,6 +35,9 @@ export default function LoginScreen({ navigation }: any) {
         avatar: `https://i.pravatar.cc/150?u=${data.email}`
       }
     }));
+    
+    // Request notification permissions after login
+    await notificationService.requestPermissions();
   };
 
   return (
