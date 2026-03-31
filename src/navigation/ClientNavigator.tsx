@@ -35,7 +35,14 @@ export default function ClientNavigator() {
           borderTopWidth: 0,
           elevation: 0,
           backgroundColor: '#fff',
-          paddingTop: 10,
+          height: 120,
+          paddingBottom: 0,
+          paddingTop:10 ,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: '500',
+          marginBottom: 5,
         },
         tabBarIcon: ({ focused, color, size }) => {
           let iconName: any = 'home';
@@ -62,3 +69,7 @@ export default function ClientNavigator() {
     </Tab.Navigator>
   );
 }
+
+
+// npx eas login
+// npx eas build -p android --profile preview
