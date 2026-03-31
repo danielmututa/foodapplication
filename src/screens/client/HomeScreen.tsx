@@ -1,12 +1,28 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, SafeAreaView, Dimensions } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, ScrollView, TouchableOpacity, Image, SafeAreaView, Dimensions, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons, Feather, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import type { RootState } from '../../store';
+import type { RootState, AppDispatch } from '../../store';
+import { fetchRestaurants } from '../../store/restaurantSlice';
+
+import * as Location from 'expo-location';
 
 const { width } = Dimensions.get('window');
+
+// Haversine formula to calculate distance in KM
+const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+  const R = 6371; // Earth's radius in KM
+  const dLat = (lat2 - lat1) * (Math.PI / 180);
+  const dLon = (lon2 - lon1) * (Math.PI / 180);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
 
 const CATEGORIES = [
   { name: 'All', icon: 'grid-outline', provider: Ionicons },
@@ -24,23 +40,44 @@ const NEW_PRODUCTS = [
   { id: 'n3', name: 'Rainbow Roll', price: 15.00, restaurant: 'Sushi Spot', image: 'https://images.unsplash.com/photo-1553621042-f6e147245754?w=400&q=80', time: '2m ago' },
 ];
 
-const RESTAURANTS = [
-  { id: '1', name: 'Pizza Palace', rating: 4.8, distance: '1.2 km', time: '15-20 min', image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80', tags: ['Pizza', 'Italian'] },
-  { id: '2', name: 'Burger Bistro', rating: 4.5, distance: '2.5 km', time: '25-30 min', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80', tags: ['Burger', 'Fast Food'] },
-  { id: '3', name: 'Sushi Spot', rating: 4.9, distance: '3.1 km', time: '30-40 min', image: 'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&q=80', tags: ['Sushi', 'Japanese'] },
-];
-
 export default function HomeScreen() {
   const insets = useSafeAreaInsets();
+  const dispatch = useDispatch<AppDispatch>();
   const [activeCategory, setActiveCategory] = useState('All');
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [userLocation, setUserLocation] = useState<Location.LocationObject | null>(null);
   const navigation = useNavigation<any>();
+  
   const { items } = useSelector((state: RootState) => state.cart);
   const { user } = useSelector((state: RootState) => state.auth);
+  const { list: restaurants, loading } = useSelector((state: RootState) => state.restaurants);
+ 
+  useEffect(() => {
+    dispatch(fetchRestaurants());
+    
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') return;
 
-  const filteredRestaurants = RESTAURANTS.filter(r => 
-    activeCategory === 'All' || r.tags.includes(activeCategory)
-  );
+      let location = await Location.getCurrentPositionAsync({});
+      setUserLocation(location);
+    })();
+  }, []);
+
+  const filteredRestaurants = restaurants.filter((r: any) => 
+    activeCategory === 'All' || (r.tags && r.tags.includes(activeCategory)) || r.name.toLowerCase().includes(activeCategory.toLowerCase())
+  ).map((r: any) => {
+    if (userLocation && r.latitude && r.longitude) {
+      const distance = calculateDistance(
+        userLocation.coords.latitude,
+        userLocation.coords.longitude,
+        parseFloat(r.latitude),
+        parseFloat(r.longitude)
+      );
+      return { ...r, calculatedDistance: `${distance.toFixed(1)} km` };
+    }
+    return { ...r, calculatedDistance: r.distance || 'Unknown' };
+  });
 
   const toggleFavorite = (id: string) => {
     if (favorites.includes(id)) {
@@ -162,12 +199,9 @@ export default function HomeScreen() {
 
         {/* Popular Restaurants */}
         <View className="px-5 pb-32">
-          <View className="flex-row justify-between items-center mb-5">
-            <Text className="text-lg font-black text-gray-900">Popular Near You</Text>
-            <TouchableOpacity><Text className="text-orange-500 font-bold text-xs">View map</Text></TouchableOpacity>
-          </View>
-
-          {filteredRestaurants.length > 0 ? filteredRestaurants.map((restaurant) => (
+          {loading ? (
+            <ActivityIndicator size="large" color="#f97316" className="mt-10" />
+          ) : filteredRestaurants.length > 0 ? filteredRestaurants.map((restaurant: any) => (
             <TouchableOpacity 
               key={restaurant.id} 
               className="bg-white rounded-[32px] shadow-sm mb-6 overflow-hidden border border-gray-50"
@@ -202,7 +236,7 @@ export default function HomeScreen() {
                 <View className="flex-row items-center border-t border-gray-50 pt-4">
                   <View className="flex-row items-center mr-5">
                     <Feather name="map-pin" size={12} color="#f97316" />
-                    <Text className="text-gray-900 font-extrabold text-[10px] ml-1.5">{restaurant.distance}</Text>
+                    <Text className="text-gray-900 font-extrabold text-[10px] ml-1.5">{restaurant.calculatedDistance}</Text>
                   </View>
                   <View className="flex-row items-center">
                     <Feather name="clock" size={12} color="#f97316" />

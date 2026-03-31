@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useDispatch } from 'react-redux';
-import { login } from '../../store/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../../store/authSlice';
+import { AppDispatch, RootState } from '../../store';
 import { Ionicons } from '@expo/vector-icons';
 
 const registerSchema = z.object({
@@ -20,7 +21,9 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 export default function RegisterScreen({ navigation }: any) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.auth);
+  
   const { control, handleSubmit, formState: { errors } } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -31,17 +34,19 @@ export default function RegisterScreen({ navigation }: any) {
     }
   });
 
-  const onSubmit = (data: RegisterForm) => {
-    // In a real app, register with backend
-    dispatch(login({ 
-      role: 'client',
-      user: {
-        id: Date.now().toString(),
-        name: data.name,
-        email: data.email,
-        avatar: `https://i.pravatar.cc/150?u=${data.email}`
-      }
+  const onSubmit = async (data: RegisterForm) => {
+    const resultAction = await dispatch(registerUser({
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: 'client'
     }));
+
+    if (registerUser.fulfilled.match(resultAction)) {
+      Alert.alert('Success', 'Account created successfully!');
+    } else {
+      Alert.alert('Registration Failed', resultAction.payload as string);
+    }
   };
 
   return (
@@ -141,8 +146,9 @@ export default function RegisterScreen({ navigation }: any) {
           <TouchableOpacity 
             className="bg-orange-500 py-4 rounded-xl items-center shadow-lg shadow-orange-200 mb-6"
             onPress={handleSubmit(onSubmit)}
+            disabled={loading}
           >
-            <Text className="text-white text-lg font-bold">Create Account</Text>
+            {loading ? <ActivityIndicator color="white" /> : <Text className="text-white text-lg font-bold">Create Account</Text>}
           </TouchableOpacity>
 
           <TouchableOpacity 

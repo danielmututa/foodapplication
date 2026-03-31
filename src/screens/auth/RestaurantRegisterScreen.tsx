@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useDispatch } from 'react-redux';
-import { login } from '../../store/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { registerUser } from '../../store/authSlice';
+import { AppDispatch, RootState } from '../../store';
 import { Ionicons } from '@expo/vector-icons';
 
 const stage1Schema = z.object({
@@ -28,7 +29,8 @@ type FormData = z.infer<typeof stage1Schema> & z.infer<typeof stage2Schema> & z.
 
 export default function RestaurantRegisterScreen({ navigation }: any) {
   const [stage, setStage] = useState(1);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading } = useSelector((state: RootState) => state.auth);
   
   const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     defaultValues: {
@@ -48,17 +50,22 @@ export default function RestaurantRegisterScreen({ navigation }: any) {
   const nextStage = () => setStage(prev => prev + 1);
   const prevStage = () => setStage(prev => prev - 1);
 
-  const onSubmit = (data: FormData) => {
-    dispatch(login({ 
+  const onSubmit = async (data: FormData) => {
+    const resultAction = await dispatch(registerUser({
+      name: data.restaurantName,
+      email: data.email,
+      password: data.password,
       role: 'restaurant',
-      user: {
-        id: Date.now().toString(),
-        name: data.restaurantName,
-        email: data.email,
-        avatar: 'https://images.unsplash.com/photo-1513104890138-7c749659a591'
-      }
+      restaurant_name: data.restaurantName,
+      address: data.address,
+      phone: data.contactPhone
     }));
-    Alert.alert('Registration Successful', `Welcome, ${data.restaurantName}! Your account is now ready.`);
+
+    if (registerUser.fulfilled.match(resultAction)) {
+      Alert.alert('Registration Successful', `Welcome, ${data.restaurantName}! Your account is now ready.`);
+    } else {
+      Alert.alert('Registration Failed', resultAction.payload as string);
+    }
   };
 
   const renderStage1 = () => (
@@ -114,7 +121,6 @@ export default function RestaurantRegisterScreen({ navigation }: any) {
       <TouchableOpacity 
         className="bg-orange-500 py-4 rounded-xl items-center shadow-lg mb-6"
         onPress={() => {
-           // Basic validation for stage 1
            if (watch('restaurantName') && watch('email') && watch('password')) nextStage();
            else Alert.alert('Error', 'Please fill in all account details.');
         }}
@@ -238,8 +244,9 @@ export default function RestaurantRegisterScreen({ navigation }: any) {
         <TouchableOpacity 
           className="flex-2 bg-orange-500 py-4 rounded-xl items-center shadow-lg"
           onPress={handleSubmit(onSubmit)}
+          disabled={loading}
         >
-          <Text className="text-white font-bold">Complete Registration</Text>
+          {loading ? <ActivityIndicator color="white" /> : <Text className="text-white font-bold">Complete Registration</Text>}
         </TouchableOpacity>
       </View>
     </View>

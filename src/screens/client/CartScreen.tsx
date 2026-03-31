@@ -5,12 +5,14 @@ import { Feather, Ionicons } from '@expo/vector-icons';
 import { removeFromCart, updateQuantity, clearCart } from '../../store/cartSlice';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import NotificationService from '../../services/NotificationService';
-import type { RootState } from '../../store';
+import { placeOrder } from '../../store/orderSlice';
+import type { RootState, AppDispatch } from '../../store';
+import { Alert } from 'react-native';
 
 export default function CartScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const { items, totalAmount } = useSelector((state: RootState) => state.cart);
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
 
   const handleUpdateQuantity = (id: string, current: number, delta: number) => {
     const newQuantity = current + delta;
@@ -22,11 +24,32 @@ export default function CartScreen({ navigation }: any) {
   };
 
   const handlePlaceOrder = () => {
-    const orderId = Math.floor(100000 + Math.random() * 900000).toString();
-    NotificationService.notifyOrderSuccess(orderId);
-    dispatch(clearCart());
-    navigation.navigate('Orders');
+    if (items.length === 0) return;
+    
+    const restaurantId = items[0].restaurantId;
+    
+    const orderData = {
+      restaurant_id: restaurantId,
+      total_amount: totalAmount + 2.50, // total + delivery
+      items: items.map(item => ({
+        menu_item_id: item.id.replace(restaurantId, ''), // Extract original numeric ID
+        quantity: item.quantity,
+        price: item.price
+      }))
+    };
+
+    dispatch(placeOrder(orderData))
+      .unwrap()
+      .then((res) => {
+        NotificationService.notifyOrderSuccess(res.id.toString());
+        dispatch(clearCart());
+        navigation.navigate('Orders');
+      })
+      .catch((err) => {
+        Alert.alert('Order Failed', err || 'Something went wrong');
+      });
   };
+
 
   const deliveryFee = items.length > 0 ? 2.50 : 0;
   const grandTotal = totalAmount + deliveryFee;

@@ -1,10 +1,11 @@
-import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform, ActivityIndicator, Alert } from 'react-native';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { useDispatch } from 'react-redux';
-import { login } from '../../store/authSlice';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser, googleLoginUser, clearError } from '../../store/authSlice';
+import { AppDispatch, RootState } from '../../store';
 import notificationService from '../../services/NotificationService';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -16,7 +17,9 @@ const loginSchema = z.object({
 type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginScreen({ navigation }: any) {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+  
   const { control, handleSubmit, formState: { errors } } = useForm<LoginForm>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
@@ -26,18 +29,38 @@ export default function LoginScreen({ navigation }: any) {
   });
 
   const onSubmit = async (data: LoginForm) => {
-    // In a real app, authenticate with backend
-    dispatch(login({ 
-      role: 'client',
-      user: {
-        id: '1',
-        name: data.email.split('@')[0],
-        email: data.email,
-        avatar: `https://i.pravatar.cc/150?u=${data.email}`
-      }
-    }));
+    const resultAction = await dispatch(loginUser(data));
+    if (loginUser.fulfilled.match(resultAction)) {
+      notificationService.notify('Welcome Back!', 'You have successfully signed in.');
+    } else {
+      Alert.alert('Login Failed', resultAction.payload as string);
+    }
   };
 
+  const handleGoogleLogin = async () => {
+    // Mock Google Data for testing
+    const googleData = {
+      google_id: 'google_123456789',
+      email: 'google_user@example.com',
+      name: 'Google User',
+      avatar: 'https://i.pravatar.cc/150?u=google'
+    };
+    
+    const resultAction = await dispatch(googleLoginUser(googleData));
+    if (googleLoginUser.fulfilled.match(resultAction)) {
+      notificationService.notify('Welcome!', 'Signed in with Google successfully.');
+    }
+  };
+
+  const handleMerchantDemoLogin = async () => {
+    const resultAction = await dispatch(loginUser({
+      email: 'merchant@foodapp.com',
+      password: 'password'
+    }));
+    if (loginUser.fulfilled.match(resultAction)) {
+      notificationService.notify('Merchant Access', 'Signed into Pizza Palace dashboard.');
+    }
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -95,28 +118,27 @@ export default function LoginScreen({ navigation }: any) {
         <TouchableOpacity 
           className="bg-orange-500 py-4 rounded-xl items-center shadow-lg shadow-orange-200 mb-6"
           onPress={handleSubmit(onSubmit)}
+          disabled={loading}
         >
-          <Text className="text-white text-lg font-bold">Sign In</Text>
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white text-lg font-bold">Sign In</Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity 
           className="bg-neutral-800 py-4 rounded-xl items-center shadow-md mb-4"
-          onPress={() => dispatch(login({ 
-            role: 'restaurant',
-            user: {
-              id: 'demo-merchant',
-              name: 'Pizza Palace',
-              email: 'merchant@foodapp.com',
-              avatar: 'https://images.unsplash.com/photo-1513104890138-7c749659a591'
-            }
-          }))}
+          onPress={handleMerchantDemoLogin}
+          disabled={loading}
         >
           <Text className="text-white text-lg font-bold">Merchant Login (Demo)</Text>
         </TouchableOpacity>
 
         <TouchableOpacity 
           className="bg-white py-4 rounded-xl items-center border border-gray-200 shadow-sm flex-row justify-center mb-8"
-          onPress={() => {}}
+          onPress={handleGoogleLogin}
+          disabled={loading}
         >
           <Ionicons name="logo-google" size={24} color="#DB4437" className="mr-3" />
           <Text className="text-gray-700 text-lg font-bold">Continue with Google</Text>
@@ -140,3 +162,4 @@ export default function LoginScreen({ navigation }: any) {
     </SafeAreaView>
   );
 }
+

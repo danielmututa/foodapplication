@@ -27,7 +27,7 @@ export default function RestaurantNavigator() {
           backgroundColor: '#fff',
           height: 120,
           paddingBottom: 0,
-          paddingTop: 10,
+          paddingTop:10 ,
         },
         tabBarLabelStyle: {
           fontSize: 11,

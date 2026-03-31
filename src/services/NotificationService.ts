@@ -1,4 +1,16 @@
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
+import api from './ApiService';
+
+export interface Notification {
+  id: number;
+  user_id: number;
+  title: string;
+  message: string;
+  type: string;
+  read_at: string | null;
+  created_at: string;
+  updated_at: string;
+}
 
 class NotificationService {
   private static instance: NotificationService;
@@ -20,11 +32,30 @@ class NotificationService {
     }
   }
 
+  public async getNotifications(): Promise<Notification[]> {
+    try {
+      const response = await api.get('/notifications');
+      return response.data;
+    } catch (error) {
+      console.error('Failed to fetch notifications:', error);
+      return [];
+    }
+  }
+
+  public async markAsRead(id: number): Promise<void> {
+    try {
+      await api.put(`/notifications/${id}/read`);
+    } catch (error) {
+      console.error('Failed to mark notification as read:', error);
+    }
+  }
+
   public notify(title: string, message: string) {
     if (!this.isEnabled) return;
 
-    // In a real app, this would use expo-notifications or FCM.
-    // For this demo, we'll use Alert to simulate a push notification.
+    // Persist to DB if needed (This would usually happen on the backend, 
+    // but we can trigger it here for local actions if desired)
+    
     Alert.alert(
       title,
       message,
@@ -59,6 +90,13 @@ class NotificationService {
         'Reordered! 🍕',
         `Rest assured, we're getting your favorites from ${restaurantName} ready again!`
       );
+  }
+
+  public notifyAddToCart(itemName: string) {
+    this.notify(
+      'Added to Cart! 🛒',
+      `${itemName} has been added to your shopping bag.`
+    );
   }
 }
 
