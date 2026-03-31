@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
-import { notificationService } from '../../services/NotificationService';
+import notificationService from '../../services/NotificationService';
+import { Ionicons } from '@expo/vector-icons';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -35,10 +36,8 @@ export default function LoginScreen({ navigation }: any) {
         avatar: `https://i.pravatar.cc/150?u=${data.email}`
       }
     }));
-    
-    // Request notification permissions after login
-    await notificationService.requestPermissions();
   };
+
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -101,10 +100,26 @@ export default function LoginScreen({ navigation }: any) {
         </TouchableOpacity>
 
         <TouchableOpacity 
-          className="bg-neutral-800 py-4 rounded-xl items-center shadow-md mb-8"
-          onPress={() => dispatch(login({ role: 'restaurant' }))}
+          className="bg-neutral-800 py-4 rounded-xl items-center shadow-md mb-4"
+          onPress={() => dispatch(login({ 
+            role: 'restaurant',
+            user: {
+              id: 'demo-merchant',
+              name: 'Pizza Palace',
+              email: 'merchant@foodapp.com',
+              avatar: 'https://images.unsplash.com/photo-1513104890138-7c749659a591'
+            }
+          }))}
         >
           <Text className="text-white text-lg font-bold">Merchant Login (Demo)</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          className="bg-white py-4 rounded-xl items-center border border-gray-200 shadow-sm flex-row justify-center mb-8"
+          onPress={() => {}}
+        >
+          <Ionicons name="logo-google" size={24} color="#DB4437" className="mr-3" />
+          <Text className="text-gray-700 text-lg font-bold">Continue with Google</Text>
         </TouchableOpacity>
 
         <View className="flex-row justify-center mt-4">
@@ -113,6 +128,14 @@ export default function LoginScreen({ navigation }: any) {
             <Text className="text-orange-500 font-bold">Sign Up</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity 
+          className="mt-6 align-center items-center"
+          onPress={() => navigation.navigate('RestaurantRegister')}
+        >
+          <Text className="text-gray-500 font-medium">Are you a restaurant? </Text>
+          <Text className="text-orange-600 font-bold">Register as a Merchant</Text>
+        </TouchableOpacity>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

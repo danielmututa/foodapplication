@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
+import { Ionicons } from '@expo/vector-icons';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -142,6 +143,14 @@ export default function RegisterScreen({ navigation }: any) {
             onPress={handleSubmit(onSubmit)}
           >
             <Text className="text-white text-lg font-bold">Create Account</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            className="bg-white py-4 rounded-xl items-center border border-gray-200 shadow-sm flex-row justify-center mb-8"
+            onPress={() => {}}
+          >
+            <Ionicons name="logo-google" size={24} color="#DB4437" className="mr-3" />
+            <Text className="text-gray-700 text-lg font-bold">Continue with Google</Text>
           </TouchableOpacity>
 
         </ScrollView>
